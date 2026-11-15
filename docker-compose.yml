@@ -1,0 +1,50 @@
+services:
+  # 1. State & Hafıza Store
+  redis:
+    image: redis:alpine
+    container_name: hr_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - hr-network
+
+  # 2. İK İzin ve İşlem Mikroservisi (FastAPI)
+  leave-agent:
+    build: ./leave_agent
+    container_name: hr_leave_agent
+    ports:
+      - "8001:8001"
+    environment:
+      - HR_PORTAL_SESSION_ID=${HR_PORTAL_SESSION_ID}
+      - HR_PORTAL_URL=${HR_PORTAL_URL}
+    restart: unless-stopped
+    networks:
+      - hr-network
+
+  # 3. Ana Multi-Agent İK UI & RAG Orkestratörü (Streamlit)
+  hr-assistant:
+    build: .
+    container_name: hr_rag_assistant
+    ports:
+      - "8501:8501"
+    environment:
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - LEAVE_AGENT_URL=http://leave-agent:8001
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./app.py:/app/app.py
+    depends_on:
+      - redis
+      - leave-agent
+    restart: unless-stopped
+    networks:
+      - hr-network
+
+networks:
+  hr-network:
+    driver: bridge

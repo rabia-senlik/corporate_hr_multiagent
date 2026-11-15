@@ -1,0 +1,27 @@
+# Gizli Ortam Değişkenleri ve Token'lar
+.env
+*.env.local
+
+# Şirket PDF Dokümanları (Gizlilik gereği GitHub'a yüklenmez)
+*.pdf
+company_*.pdf
+hr_*.pdf
+
+# Büyük Veritabanı ve Model Dosyaları
+chroma_db/
+vector_index.pkl
+*.exe
+OllamaSetup.exe
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+env/
+venv/
+
+# Sistem Dosyaları
+.DS_Store
+Thumbs.db
